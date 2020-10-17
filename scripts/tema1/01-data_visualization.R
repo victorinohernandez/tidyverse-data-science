@@ -1,4 +1,4 @@
-#Data Visualization - 11 de Mayo de 2018
+#Data Visualization - 16 de Octubre de 2020
 library(tidyverse)
 
 #tidyverse 1.2.1 ──
@@ -7,19 +7,28 @@ library(tidyverse)
 #✔ tidyr   0.8.0     ✔ stringr 1.3.1
 #✔ readr   1.1.1     ✔ forcats 0.3.0
 
+
+#tidyverse 1.2.1 -- Esto es mio
+#v ggplot2 3.2.1     v purrr   0.3.2
+#v tibble  3.0.3     v dplyr   0.8.3
+#v tidyr   1.0.0     v stringr 1.4.0
+#v readr   1.3.1     v forcats 0.4.0
+
+
+
 #Los coches con motor más grande consumen más combustible 
 #que los coches con motor más pequeño.
 #La relación consumo / tamaño es lineal? Es no lineal? Es exponencial?
 #Es positiva? Es negativa?
 
 View(mpg)
-?mpg #help(mpg)
+?mpg # es igual que help(mpg)
 # displ: tamaño del motor del coche en litros
 # hwy: número de millas recorridas en autopista por galón de combustible (3.785411784 litros)
 
-ggplot(data = mpg)
+ggplot(data = mpg) # genera un espacio en blanco que despues se añaden capas de graficos
 
-mpg %>% ggplot()
+mpg %>% ggplot() # es lo mismo genera un espacio en blanco
 
 
 ggplot(data = mpg) + 
@@ -29,12 +38,19 @@ ggplot(data = mpg) +
 #ggplot(data = <DATA_FRAME>) +
 #  <GEOM_FUNCTION>(mapping = aes(<MAPPINGS>))
 
+
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = hwy, y = cyl))
+
+
+
 ggplot(data = mpg) +
   geom_point(mapping = aes(x = class, y = drv))
 
 
+ dim(mpg) # dimensiones del dataframe
 
-#Color de los puntos
+ #Color de los puntos
 ggplot(data = mpg) +
   geom_point(mapping = aes(x = displ, y = hwy, color = class))
 
