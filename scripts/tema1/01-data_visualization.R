@@ -49,6 +49,7 @@ ggplot(data = mpg) +
 
 
  dim(mpg) # dimensiones del dataframe
+ 
 
  #Color de los puntos
 ggplot(data = mpg) +
@@ -88,7 +89,7 @@ ggplot() +
 
 ggplot(data = mpg) + 
   geom_point(mapping = aes(x = displ, y = hwy), 
-             shape = 23, size = 10, color = "red", 
+             shape = 23, size = 5, color = "blue", 
              fill = 'yellow')
 
 ggplot(data = mpg) + 
@@ -96,6 +97,7 @@ ggplot(data = mpg) +
 
 
 ##FACETS
+
 # facet_wrap(~<FORMULA_VARIABLE>): la variable debe ser discreta
 ggplot(data = mpg) +
   geom_point(mapping = aes(x = displ, y = hwy)) +
@@ -138,7 +140,8 @@ ggplot(data = mpg) +
 ggplot(data = mpg) + 
   geom_smooth(mapping = aes(x=displ, y=hwy))
 
-ggplot(data = mpg) + 
+
+ggplot(mpg) + 
   geom_smooth(mapping = aes(x=displ, y=hwy, group = drv, color = drv),
               show.legend = T)
 
@@ -149,7 +152,7 @@ ggplot(data = mpg, mapping = aes(x=displ, y=hwy)) +
 
 ggplot(data = mpg, mapping = aes(x=displ, y = hwy)) + 
   geom_point(mapping = aes(color = class)) + 
-  geom_smooth(data = filter(mpg, class == "suv"), se = F)
+  geom_smooth(data = filter(mpg, class == "suv"), se = F) # se=F oculta el intervalo de confianza
 
 ggplot(data = mpg, mapping = aes(x=displ, y = hwy,color = drv)) + 
   geom_point() + 
@@ -193,8 +196,11 @@ ggplot(data = mpg, mapping = aes(x=displ, y = hwy) ) +
 #Ejercicio 10
 ggplot(data = mpg, mapping = aes(x=displ, y = hwy) ) + 
   geom_point(mapping = aes(fill = drv), size = 4, 
-             shape = 23, col = "white", stroke = 2) 
+             shape = 20, col = "blue", stroke = 1) 
 
+
+
+                          #### OTRO DATASET ###
 
 ## Ejemplo del dataset de diamantes
 View(diamonds)
@@ -265,7 +271,9 @@ ggplot(data = diamonds, mapping = aes(x = cut, fill = clarity)) +
 
 
 ## Volvemos al scatterplot
+
 ## position = "jitter"
+
 ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
   geom_point( position = "jitter" )
 
