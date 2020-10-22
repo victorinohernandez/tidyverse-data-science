@@ -355,8 +355,8 @@ ggplot(data = diamonds) +
 ggplot(data = diamonds) + 
   geom_bar(mapping = aes(x = clarity, fill = clarity, y = ..count..)) +
   coord_polar() +
-  facet_wrap(~cut) #+
-  #labs(x=NULL, y = NULL, title = "Ejemplo final de ggplot con JB",
+  facet_wrap(~cut) +
+  labs(x=NULL, y = NULL, title = "Ejemplo final de ggplot con JB",
        caption = "Dos variables cruzadas de diamonds",
        subtitle="Aprender ggplot puede ser hasta divertido ;)")
 
