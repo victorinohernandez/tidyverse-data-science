@@ -39,10 +39,10 @@ flights %>%
 
 may19 <- filter(flights, month == 5, day == 19)
 
-(dec25 <- filter(flights, month == 12, day == 25))
+dec25 <- filter(flights, month == 12, day == 25)
 # >, >=, <, <=, ==, !=
 
-filter(flights, month == 5)
+may <- filter(flights, month == 5)
 
 2 == 2
 
@@ -54,17 +54,19 @@ near(sqrt(2)^2, 2)
 1/49 * 49 == 1
 near(1/49*49, 1)
 
-filter(flights, month == 5 | month == 6)
+mayojun <- filter(flights, month == 5 | month == 6)
+
+mayyjun <- filter(flights, month == 5 & month == 6)
 
 filter(flights, month == 5 | 6)# NO FUNCIONA...
 
-may_june <- filter(flights, month %in% c(5,6))
+may_june <- filter(flights, month %in% c(5,6)) # igual que usar |
 #LEYES DE MORGAN
 #!(x&y) == (!x)|(!y)
 #!(x|y) == (!x)&(!y)
 
-filter(flights, !(arr_delay > 60 | dep_delay >60))
-filter(flights, arr_delay <= 60, dep_delay <= 60)
+vuelosretrasados <- filter(flights, !(arr_delay > 60 | dep_delay >60))
+vuelos_retrasados <- filter(flights, arr_delay <= 60, dep_delay <= 60)
 
 NA > 0
 10 == NA
@@ -83,7 +85,7 @@ age.mery == age.john
 is.na(age.mery)
 
 df <- tibble(x = c(1,2,NA,4,5))
-df
+View(df)
 filter(df, x>2)
 filter(df, is.na(x)|x>2)
 
@@ -115,9 +117,9 @@ filter(flights, between(hour,0,6))
 filter(flights, is.na(dep_time))
 
 
-head(flights, 10)
+head(flights, 10) # primeros 10
 
-tail(flights, 10)
+tail(flights, 10) # ultimos 10
 
 ### ARRANGE
 sorted_date <- arrange(flights, year, month, day)
