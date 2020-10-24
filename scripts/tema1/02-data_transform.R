@@ -31,7 +31,10 @@ tail(flights)
 ## 2 - operaciones que queremos hacer a las variables del data frame
 ## 3 - resultado en un nuevo data frame
 
-### FILTER
+
+
+                                    ### FILTER
+
 jan1 <- filter(flights, month == 1, day == 1)
 flights %>% 
   filter(month == 1, day == 1) %>%
@@ -121,13 +124,17 @@ head(flights, 10) # primeros 10
 
 tail(flights, 10) # ultimos 10
 
-### ARRANGE
+
+
+                                      ### ARRANGE
+
+
 sorted_date <- arrange(flights, year, month, day)
 flights %>% arrange(year, month, day)
 tail(flights)
 tail(sorted_date)
 
-head(arrange(flights, desc(arr_delay)))
+head(arrange(flights, desc(arr_delay))) #ordena en forma descencente con respecto a la var indcada
 
 arrange(flights, desc(dep_delay))
 
@@ -139,56 +146,58 @@ View(arrange(flights, carrier))
 View(arrange(flights, desc(distance)))
 
 
-### SELECT
+                                  ### SELECT
 
-View(sorted_date[1024:1068,TRUE])
 
-View(select(sorted_date[1024:1068,], dep_delay, arr_delay))
+View(sorted_date[1024:1068,TRUE]) # selecciona las filas 1024 a 1063
+
+View(select(sorted_date[1024:1068,], dep_delay, arr_delay)) ## selecciona las filas 1024 a 1063,pero solo selecciona dos variables
 
 select(flights, year, month, day)
 
-select(flights, dep_time:arr_delay)
+select(flights, dep_time:arr_delay) #selecciona un rango
 
-select(flights, -(year:day))
+select(flights, -(year:day)) # selecciona todas excepto year a day
 
-select(flights, starts_with("dep"))
+select(flights, starts_with("dep")) #selecciona las que comienzan con "dep"
 
-select(flights, ends_with("delay"))
+select(flights, ends_with("delay")) #selecciona las que terminan con "delay"
 
-select(flights, contains("st"))
+select(flights, contains("st")) #seleciona las que ocntinene "st"
 
-select(flights, matches("(.)\\1"))
+select(flights, matches("(.)\\1")) #selecciona las que tienen dos caracteres iguales
 
 select(flights, num_range("x",1:5))# x1, x2, x3, x4, x5
 
 ?select
 
-rename(flights, deptime = dep_time, 
+rename(flights, deptime = dep_time,           #cambia el nombre a las variables
        anio = year, mes = month, dia = day)
 
-select(flights, deptime = dep_time)
+select(flights, deptime = dep_time) #selecciona y cmabia el nombre a la variable indicada
 
-select(flights, time_hour, distance, air_time, everything())
-
+select(flights, time_hour, distance, air_time, everything()) #seleciona las variables al inicio y las demas restantes
 
 sorted_date
 
 
+?is.na
 
 
 #Ejercicio 1
-arrange(flights,!is.na(dep_time))
+arrange(flights,!is.na(dep_time)) #ordena con respecto a la variable y los NA
 
 #Ejercicio 2
-arrange(flights, desc(dep_delay))[1,]
-arrange(flights, dep_delay)[1,]
+arrange(flights, desc(dep_delay))[1,] #muestra la primera fila, la cual esta en orden descendente
+
+arrange(flights, dep_delay)[1,] # muestar la primera fila, la cual esta en orden ascendente
 
 #Ejercicio 3
-View(arrange(flights, desc(distance/air_time)))
+View(arrange(flights, desc(distance/air_time))) #ordena en desc con respecto al cociente (rapidez)
 
 #Ejercicio 4 y 5
-View(arrange(flights, desc(distance))[1,])
-View(arrange(flights, distance)[1,])
+View(arrange(flights, desc(distance))[1,]) #muestra la menor distancia
+View(arrange(flights, distance)[1,])       #muestra la mayor distancia
 
 #Ejercicio 6
 select(flights,dep_time, dep_delay, arr_time, arr_delay)
@@ -196,24 +205,30 @@ select(flights,starts_with("dep"), starts_with("arr"))
 select(flights,ends_with("time"), ends_with("delay") -starts_with("sched"),-starts_with("air") )
 
 #Ejercicio 7
-select(flights, distance, distance)
+select(flights, distance, distance) # no ocurre nada si seleccionas varias veces la misma var
 
 
 #Ejercicio 8 y 9
-select(flights, one_of(c("year", "month", "day", "dep_delay", "arr_delay")))
+select(flights, one_of(c("year", "month", "day", "dep_delay", "arr_delay"))) #permite crear un vectos con variables en string
 
-select(flights, contains("TIME"))
+select(flights, contains("TIME")) #devuelve las variables que contengan "time" sin embargo vemos que no diferencia entre mayusculas
 
 
 
-### MUTATE
+                                       ### MUTATE
+
+
+#creando un nuevo dataset, solo selecionando ciertas variables
+
 flights_new <- select(flights,
                       year:day, 
                       ends_with("delay"),
                       distance, 
-                      air_time)
+                      air_time)               
 
 flights_new
+
+#creando nuevas variables con mutate y asignando a un nuevo dataset
 
 mutate(flights_new,
        time_gain = arr_delay - dep_delay,    #diff_t (min)
@@ -224,18 +239,25 @@ mutate(flights_new,
      
 View(flights_new)
 
+
+#se crea un histograma quitendo los NA
 flights_new %>%
   filter(!is.na(time_gain_per_hour)) %>%
   ggplot() + 
   geom_histogram(mapping = aes(x=time_gain_per_hour),
                  bins = 300)
 
+#se crea un nuevo dataset con variables 
 
 transmute(flights_new,
           time_gain = arr_delay - dep_delay,
           air_time_hour = air_time/60,
           flight_speed = distance / air_time_hour,
           time_gain_per_hour = time_gain / air_time_hour) -> data_from_flights
+
+
+
+                       #### NOTAS #####
 
 # * Operaciones aritméticas: +, -, *, /, ^  (hours + 60 * minutes)
 # * Agregados de funciones: x/sum(x) : proporición sobre el total
@@ -244,17 +266,27 @@ transmute(flights_new,
 #                           (x - min(x))/(max(x) - min(x)): estandarizar entre [0,1]
 # * Aritmética modular: %/%-> cociente de la división entera, %% -> resto de la división entera
 #                       x == y * (x%/%y) + (x%%y) 
+
+
+# se crean nuevas variables para hras en el aire y otra para minutos, usando aritmetica modular
+
 transmute(flights, 
           air_time,
           hour_air = air_time %/% 60,
           minute_air = air_time %% 60
           )
+
+
 # * Logaritmos: log() -> logaritmo en base e, log2(), log10()
 # * Offsets: lead()->mueve hacia la izquierda, lag()->mueve hacia la derecha
+
+
 df <- 1:12
 df
 lag(df,4)
 lead(df)
+
+
 # * Funcions acumulativas: cumsum(), cumprod(), cummin(), cummax(), cummean()
 df
 cumsum(df)
@@ -262,11 +294,19 @@ cumprod(df)
 cummin(df)
 cummax(df)
 cummean(df)
+
+
 # * Comparaciones lógicas: >, >=, <, <=, ==, !=
+
+# se crea una varible logica para ver si el vuelo ha sido atrasado
 transmute(flights, 
           dep_delay,
           has_been_delayed = (dep_delay >0)
           )
+
+
+# Definen rangos de las observaciones
+
 # * Rakings:min_rank()
 df <- c(7,1,2,5,3,3,8,NA,3,4,-2)
 df
@@ -285,9 +325,11 @@ cume_dist(df)
 
 ntile(df, n = 4)
 
+
+#crea una varible para ver en que percentil se encuentra
 transmute(flights, 
           dep_delay,
-          ntile(dep_delay, n = 100))
+          percentil= ntile(dep_delay, n = 100))
 
 
 #Ejercicio 1
@@ -313,16 +355,22 @@ transmute(flights,
           dep_delay,
           new_delay==dep_delay)
 
-#Ejercicio 4
-arrange(mutate(flights,
+#Ejercicio 4  
+#esto calcula el ranking de vuelos mas demorados, los ordena en ascendente, para posteriormente mostrar el rankin de los primeros 10 vuelos
+View(arrange(mutate(flights,
           r_delay = min_rank(dep_delay)),
          r_delay
-        )[1:10,]
+        )[1:10,])
+
+
+# Ejercicio 5
+1:6 + 1:20
 
 
 
 
-### SUMMARISE
+                                        ### SUMMARISE
+
 
 summarise(flights, delay = mean(dep_delay, na.rm = T))
 
