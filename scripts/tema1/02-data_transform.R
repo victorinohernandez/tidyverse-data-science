@@ -247,7 +247,7 @@ flights_new %>%
   geom_histogram(mapping = aes(x=time_gain_per_hour),
                  bins = 300)
 
-#se crea un nuevo dataset con variables 
+#se crea un nuevo dataset con variables, pero pierde las variables anteriores
 
 transmute(flights_new,
           time_gain = arr_delay - dep_delay,
@@ -426,7 +426,7 @@ delays <- flights %>%
 
 # x %>% f(y) <-> f(x,y)
 # x %>% f(y) %>% g(z) <-> g(f(x,y),z)
-# x %>% f(y) %>% g(z) %>% h(t) <-> .............
+# x %>% f(y) %>% g(z) %>% h(t) <-> .............h(g(f(x,y),z),t)
 
 ##ggvis <-> ggplot2 
 
