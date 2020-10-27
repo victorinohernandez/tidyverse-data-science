@@ -1,3 +1,8 @@
+                              #### TRANSFORMACION DE DATOS ####
+                              
+### VICTORINO HDZ MTZ                              
+
+
 library(tidyverse)
 library(nycflights13)
 
@@ -372,11 +377,11 @@ View(arrange(mutate(flights,
                                         ### SUMMARISE
 
 
-summarise(flights, delay = mean(dep_delay, na.rm = T))
+summarise(flights, delay = mean(dep_delay, na.rm = T)) #calcula el promedio de dep_delay, quitando NA
 
 flights %>%
-  group_by(year, month) %>%
-  summarise(delay = mean(dep_delay, na.rm = T))
+  group_by(year, month)%>%
+  summarise(delay = mean(dep_delay, na.rm = T)) #agruapa por año y mes, para despues sacar promedio
 
 flights %>%
   group_by(year, month, day) %>%
@@ -384,36 +389,48 @@ flights %>%
           delay = mean(dep_delay, na.rm = T),
           median = median(dep_delay, na.rm = T),
           min = min(dep_delay, na.rm = T)
-          )
+          )                             #agrupa por año, mes y dia y calcula media mediana y el minimo
 
 flights %>%
   group_by(carrier) %>%
   summarise(
     delay = mean(dep_delay, na.rm = T),
     num = n()
-    ) 
+    )                #agrupa por compañia, calcula la media, asi como el numero de vuelos
 
 mutate(summarise(group_by(flights, carrier),
           delay = mean(dep_delay, na.rm = T)),
           sorted = min_rank(delay)
-          )
+          ) #agrupa por compañia, calcula la media y despues ordena del menor a mayor, para asi crear la variable sorted
 
 
-### PIPES
-group_by_dest <- group_by(flights, dest)
 
+
+                                             ### PIPES
+
+
+
+group_by_dest <- group_by(flights, dest) #agrupa por destino y crea un nuevo dataset
+
+
+#Del dataset se crea uno nuevo calculando el nuemro de destinos, la media de la distancia y la media de la demora en llegada
 delay <- summarise(group_by_dest,
                    count = n(),
                    dist = mean(distance, na.rm = T),
                    delay = mean(arr_delay, na.rm = T)
                    )
-
+#Del dataset delay se filtra por aquellos que el numero de destinos es mayor a 100 y se elimina HNL
 delay <- filter(delay, count>100, dest != "HNL")
 
+
+#Se crea un grafico usando delay y ggplot2
 ggplot(data = delay, mapping = aes(x=dist, y = delay)) +
   geom_point(aes(size = count), alpha = 0.2) +
   geom_smooth(se = F) +
   geom_text(aes(label = dest), alpha = 0.3)
+
+
+#SE REALIZA LO MISMO PERO SIMPLIFICANDO USANDO PIPES
 
 delays <- flights %>%
   group_by(dest) %>%
@@ -424,11 +441,19 @@ delays <- flights %>%
   ) %>%
   filter(count > 100, dest!="HNL")
 
+
+                                 ### NOTAS ###
+
 # x %>% f(y) <-> f(x,y)
 # x %>% f(y) %>% g(z) <-> g(f(x,y),z)
 # x %>% f(y) %>% g(z) %>% h(t) <-> .............h(g(f(x,y),z),t)
 
 ##ggvis <-> ggplot2 
+
+
+
+
+#Del dataset principal se agrupa por año, mes, dia, se calcula media, sd y se cuentan el nuemro de observaciones sin considerar NA
 
 flights %>% 
   group_by(year, month, day) %>%
@@ -438,6 +463,10 @@ flights %>%
             count = n()
             )
 
+
+
+#se calcula los vuelos no cancelados para ello se eliminan los NA, filtrando desde el tibble principal
+#ademas se agrupan y se calculan estadisticos sin contar NA asociados a la variable en cuestion
 flights %>%
   filter(!is.na(dep_delay), !is.na(arr_delay)) %>% 
   group_by(year, month, day) %>%
@@ -445,72 +474,83 @@ flights %>%
             median = median(dep_delay, na.rm = T),
             sd = sd(dep_delay, na.rm = T),
             count = n()
-  ) 
-
+            ) 
+#se calcula los vuelos no cancelados para ello se eliminan los NA, filtrando desde el t
 not_cancelled <- flights %>%
   filter(!is.na(dep_delay), !is.na(arr_delay))
 
+#Agrupa por numero de cola y calcula el promedio de demoras en la llegada de acuerdo al numtail
 delay_numtail <- not_cancelled %>%
   group_by(tailnum) %>%
   summarise(delay = mean(arr_delay))
 
+#se crea un grafico de lineas continuas
 ggplot(data = delay_numtail, mapping = aes(x = delay)) + 
   geom_freqpoly(binwidth = 5)
 
+#se crea un grafico de histograma
 ggplot(data = delay_numtail, mapping = aes(x = delay)) + 
   geom_histogram(binwidth = 5)
+
+#Agrupa por numero de cola y calcula el promedio de demoras en la llegada de acuerdo al numtail ademas se cuentan el nuemro de llegadas
 
 delay_numtail <- not_cancelled %>%
   group_by(tailnum) %>%
   summarise(delay = mean(arr_delay),
             count = n()
             )
-
+#se crea un grafico de dispercion entre el numero de vuelos de los aviones y las demoras
+#entre mas veces haya volado un avion el tiempo de demora se estabiliza (ley de los grandes numeros, mas muestras mas tiende a estabilizarse)
 ggplot(data = delay_numtail, mapping = aes(x = count, y = delay)) + 
   geom_point(alpha = 0.2)
 
-
+#Del tibble se filtran los aviones que hay volado mas de 20 veces y se crea nuevamente el grafico de dispercion
 delay_numtail %>% 
   filter(count>20) %>%
   ggplot(mapping = aes(x=count, y = delay)) +
     geom_point(alpha = 0.2)
 
 
-#### BASEBALL
+                            #### BASEBALL
 View(Lahman::Batting)
 ?Lahman::Batting
-batting <- as_tibble(Lahman::Batting)
+batting <- as_tibble(Lahman::Batting) #El dataset se convierte en tibble
 
+#Se agrupa por playerid y se calculan estadisticos
 batters <- batting %>%
   group_by(playerID) %>%
   summarise(hits = sum(H, na.rm = T),
             bats = sum(AB, na.rm = T),
             bat.average = hits / bats
-  )
+            )
 
+#se filtra por aquellos jugadores que batearon mas de 100 veces y se cre un grafico
 batters %>%
   filter(bats > 100) %>%
   ggplot(mapping = aes(x = bats, y = bat.average))+
    geom_point(alpha = 0.2) +
    geom_smooth(se = F)
   
-  
+#se filtra por aquellos que batearon mas de 100 y se ordena en descendente de acuerdo al promedio de bateo  
 batters %>%
   filter(bats > 100) %>%
   arrange(desc(bat.average))
 
 
-
+                        #### ESTADISTICOS QUE SE PUEDEN CALCULAR
 
 
 # * Medidas de Centralización
+
 not_cancelled %>%
   group_by(carrier) %>%
   summarise(
     mean = mean(arr_delay),
-    mean2 = mean(arr_delay[arr_delay>0]),
+    mean2 = mean(arr_delay[arr_delay>0]), #solo donde arr_delay es positivo
     median = median(arr_delay)
   )
+
+
 # * Medidas de dispersión
 not_cancelled %>%
   group_by(carrier) %>%
@@ -545,7 +585,8 @@ not_cancelled %>%
     last_dep = last(dep_time)
   )
 
-
+#de los no cancelados se crea agrupa por compañia, se crea una variable de ranking en orden ascendente
+#se filtra de acuerdo al ranking en ascendente
 not_cancelled %>%
   group_by(carrier) %>%
   mutate(rank = min_rank(dep_time)) %>%
@@ -558,44 +599,56 @@ flights %>%
   group_by(dest) %>%
   summarise(
     count = n(),
-    carriers = n_distinct(carrier),
-    arrivals = sum(!is.na(arr_delay)),
+    carriers = n_distinct(carrier), #cuenta los valores unicos, en este caso cuenta cuantos vuelos de las compañias llegan a cada uno de los destinos
+    arrivals = sum(!is.na(arr_delay)), #cuenta cuantos no han sido cancelados
     cancelled = count - arrivals
   ) %>%
-  arrange(desc(carriers))
+  arrange(desc(carriers)) #cuenta cual es el destino mas visitado
 
 
-not_cancelled %>% count(dest)
+not_cancelled %>% count(dest)  #cuanta cuantos vuelos no ham sido cancelados es decir cuantos llegan
 
-not_cancelled %>% count(tailnum, wt = distance)
+not_cancelled %>% group_by(dest) %>%   #equivalente a lo anterios
+  summarise(cuantos=n())
+
+
+
+#cuanta cuanto distancia ha recorrido en milla, se pondera por la distancia. Si no se pondera solo contaria cuantas veces ha volado
+not_cancelled %>% count(tailnum, wt = distance) 
+
 
 ## sum /mean de valores lógicos 
+#cuantos vuelos salen antes de las 5 
 not_cancelled %>%
   group_by(year, month, day) %>%
   summarise(n_prior_5 = sum(dep_time < 500))
 
+#la proporcion de vuelos que se retrasan mas de 1 hrs, y se ordena en descendente de acuerdo a cada compañia
 not_cancelled %>%
   group_by(carrier) %>%
   summarise(more_than_hour_delay = mean(arr_delay>60)) %>%
   arrange(desc(more_than_hour_delay))
 
 
-## Agrupaciones múltiples
-daily <- group_by(flights, year, month, day)
-(per_day <- summarise(daily, n_fl = n()))
-(per_month <- summarise(per_day, n_fl = sum(n_fl)))
-(per_year <- summarise(per_month, n_fl = sum(n_fl)))
 
-business <- group_by(flights, carrier, dest, origin)
-summarise(business, n_fl = n()) %>%
-  summarise(n_fl = sum(n_fl)) %>%
-  summarise(n_fl = sum(n_fl)) 
 
-business
 
-business %>%
-  ungroup() %>%
-  summarise(n_fl = n())
+                           ## Agrupaciones múltiples
+
+
+
+daily <- group_by(flights, year, month, day) #agrupa por año mes y dia
+(per_day <- summarise(daily, n_fl = n())) #cuenta los vuelos por dia
+(per_month <- summarise(per_day, n_fl = sum(n_fl)))  #cuenta los vuelos por mes
+(per_year <- summarise(per_month, n_fl = sum(n_fl))) #cuenta los vuelos por año
+
+business <- group_by(flights, carrier, dest, origin) #agrupa por compañia, destino y origen
+summarise(business, n_fl = n()) %>% #cuenta el numero de vuelos por 0rigen
+  summarise(n_fl = sum(n_fl)) %>% #cuenta el numero de vuelos por destino
+  summarise(n_fl = sum(n_fl))  #cuenta el numero de vuelos por compañia
+
+
+#Desagrupa
 
 daily %>%
   ungroup() %>%
@@ -605,16 +658,24 @@ business %>%
   ungroup() %>%
   summarise(n_fl = n())
 
+
+
+#Del tibble agrupacion diaria, filtrar en un rango por orden desc y quedar con los retardos menor de 10
+#muestra los peores de cada dia
 flights %>%
   group_by(year, month, day) %>%
   filter(rank(desc(arr_delay))<10) -> temp
 View(temp)
 
+
+#muestra los destinos populares (que tienen mas de 365 vuelos destinos al año)
 popular_dest <- flights %>%
   group_by(dest) %>%
   filter(n()>365)
 View(popular_dest)
 
+
+#filtra los que tiene retrasos, se crea la proporcion del retrazo global y selecciona que variables se muestran en el tibble 
 popular_dest %>%
   filter(arr_delay >0) %>%
   mutate(prop_delay = arr_delay / sum(arr_delay)) %>%
